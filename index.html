@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EcoCalc</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* ======================================================================
+           PALETA DE COLORES VÍVIDA
+           ====================================================================== */
+        :root {
+            /* Colores Libélula/Vívidos */
+            --color-primary-vivid: #008080; /* Teal/Verde Oscuro - Sidebar, Botones Primarios */
+            --color-secondary-vivid: #ff6347; /* Rojo/Naranja - Huella Actual, Advertencias */
+            --color-success-vivid: #3cb371; /* Verde Menta - Éxito, Consejos, Reducción */
+            --color-info-vivid: #4682b4; /* Azul Acero - Información, Huella Por Persona, Agua */
+            --color-warning-vivid: #ffd700; /* Dorado - Energía, Moderado */
+            --color-light-bg: #f4f6f9; /* Fondo principal de la página */
+            --color-dark-vivid: #333333; /* Texto oscuro */
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        /* ======================================================================
+           ESTILOS GENERALES Y LAYOUT BASE (Diseño Centrado y Responsive)
+           ====================================================================== */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-light-bg);
+            overflow-x: hidden;
+        }
+        .hidden { display: none !important; }
+
+        /* Tipografía y Colores */
+        .text-primary-vivid { color: var(--color-primary-vivid) !important; }
+        .text-secondary-vivid { color: var(--color-secondary-vivid) !important; }
+        .text-success-vivid { color: var(--color-success-vivid) !important; }
+        .text-info-vivid { color: var(--color-info-vivid) !important; }
+        .text-warning-vivid { color: var(--color-warning-vivid) !important; }
+        
+        /* LAYOUT RESPONSIVE (Centrado + Barras Visuales) */
+        #wrapper {
+            display: flex;
+            flex-direction: column; /* Apilar en móviles */
+            min-height: 100vh;
+            background-color: var(--color-light-bg);
+        }
+
+        /* Contenedor de Contenido (Calculadora + Barras Laterales) */
+        .content-container {
+            display: flex;
+            flex-direction: row; /* Por defecto, para escritorio */
+            width: 100%;
+            /* Altura ajustable, menos la navbar */
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Contenido principal centrado */
+        .main-content-centered {
+            width: 100%; /* Ocupa el 100% en móviles */
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 0; /* Sin bordes redondeados en móvil */
+        }
+
+        /* Columnas Laterales para Videos/Gifs - OCULTAS POR DEFECTO EN MÓVIL */
+        .visual-sidebar {
+            display: none;
+        }
+        .visual-asset { 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            background-color: white; /* Asegurar fondo blanco para los assets */
+        }
+        .visual-asset img, .visual-asset video { width: 100%; height: auto; display: block; }
+
+        /* MEDIA QUERY PARA ESCRITORIO (min-width: 1200px) */
+        @media (min-width: 1200px) {
+            .visual-sidebar {
+                display: block; /* Mostrar las barras laterales en escritorios */
+                width: 250px;
+                max-width: 250px; 
+                padding: 20px;
+                background-color: #e9ecef;
+                position: sticky;
+                top: 0;
+                overflow-y: auto;
+            }
+            #page-content-wrapper {
+                 padding: 0; 
+                 flex-grow: 1;
+                 display: flex;
+                 justify-content: center;
+                 align-items: flex-start;
+            }
+            .content-container {
+                justify-content: space-between;
+                align-items: stretch;
+            }
+            .main-content-centered {
+                max-width: 800px; /* Ancho máximo para el contenido principal */
+                padding: 30px;
+                border-radius: 12px;
+            }
+        }
+
+
+        /* ======================================================================
+           ESTILOS DE BOTONES Y FORMULARIO
+           ====================================================================== */
+
+        /* Botones Principales (Usa su variable de color) */
+        .btn-primary-vivid { 
+            background-color: var(--color-primary-vivid); 
+            border-color: var(--color-primary-vivid); 
+            border-radius: 50px;
+            font-weight: 600;
+            color: white; /* Asegurar color blanco */
+        }
+        .btn-primary-vivid:hover { background-color: #004d4d; border-color: #004d4d; }
+
+        /* Botón de Categoría (Para Siguiente/Ver Resultados) */
+        .btn-category-vivid {
+            /* Usamos el color de éxito para diferenciar el flujo */
+            background-color: var(--color-success-vivid); 
+            border-color: var(--color-success-vivid);
+            color: white;
+            font-weight: bold;
+            border-radius: 50px;
+            padding: 10px 25px;
+            transition: all 0.3s;
+        }
+        .btn-category-vivid:hover {
+            background-color: #388E3C; /* Verde un poco más oscuro */
+            border-color: #388E3C;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* CORRECCIÓN DE ESTILO DE BOTONES DE SELECCIÓN (Lavadora y Reciclaje) */
+        .card-select-lavadora, .card-select-reciclaje { 
+            border: 2px solid #ddd; /* Estado por defecto (no seleccionado) */
+            padding: 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: block; 
+            text-align: center; 
+            transition: all 0.2s; 
+            margin-bottom: 10px;
+        }
+
+        /* Estado ACTIVO/SELECCIONADO (USA SU COLOR DE ÉXITO) */
+        .card-select-lavadora.active, .card-select-reciclaje.active { 
+            border-color: var(--color-success-vivid); 
+            background-color: #E8F5E9; /* Fondo muy claro */
+            box-shadow: 0 0 5px rgba(60, 179, 113, 0.5);
+        }
+
+        /* Estilo para marcar errores en el grupo de radio buttons (Validación) */
+        .is-invalid-group {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+        }
+
+        .card-select-lavadora input, .card-select-reciclaje input { display: none; }
+
+
+        /* RESPONSIVE PARA BOTONES DE ENCUESTA (MEJORA MÓVIL) */
+        @media (max-width: 767px) {
+            /* Lavadora (De 4 a 2 columnas) */
+            .tab-pane[data-step="2"] .row > div.col-md-3 {
+                width: 50%; 
+            }
+            /* Reciclaje (De 3 a 2 columnas) */
+            .tab-pane[data-step="6"] .row > div.col-md-4 {
+                width: 50%; 
+            }
+        }
+
+
+        /* ======================================================================
+           ESTILOS DE BARRA DE RESULTADOS
+           ====================================================================== */
+        .huella-bar-container { 
+            position: relative; 
+            padding: 50px 0; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            /* Estilos del card de su versión */
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .huella-bar { 
+            background-color: #ddd; 
+            height: 15px; /* Más ancho para visibilidad */
+            border-radius: 5px; 
+            position: relative; 
+        }
+        .huella-value { 
+            height: 100%; 
+            border-radius: 5px; 
+            background-color: var(--color-secondary-vivid); /* Huella Actual (Rojo/Naranja) */
+            transition: width 0.5s ease-in-out; 
+        }
+
+        /* Flechas y Promedio */
+        .huella-arrow { 
+            position: absolute; 
+            top: -20px; 
+            font-size: 1.2rem; 
+            z-index: 10; 
+            color: var(--color-secondary-vivid); 
+        }
+        .huella-arrow .d-block { 
+            font-size: 0.7rem; 
+            white-space: nowrap; 
+            font-weight: bold;
+        }
+        .huella-compromiso-arrow { 
+            position: absolute; 
+            bottom: -20px; 
+            font-size: 1.2rem; 
+            z-index: 10; 
+            color: var(--color-success-vivid); 
+        }
+        .huella-compromiso-arrow .d-block { 
+            font-size: 0.7rem; 
+            white-space: nowrap; 
+            font-weight: bold;
+        }
+        .huella-promedio { 
+            position: absolute; 
+            top: 0; 
+            bottom: 0; 
+            width: 4px; 
+            background-color: var(--color-info-vivid); 
+            margin-left: -2px; 
+            z-index: 5; 
+        }
+        .huella-promedio-text { 
+            position: absolute; 
+            bottom: -25px; 
+            font-size: 0.7rem; 
+            color: var(--color-info-vivid); 
+            white-space: nowrap; 
+            font-weight: bold; 
+        }
+
+
+        /* ======================================================================
+           OTROS ESTILOS
+           ====================================================================== */
+
+        /* Estilos de Card de Input (Simulando el borde superior de la referencia) */
+        .card-input-reference {
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            background-color: #fff;
+            border: none;
+            border-top: 5px solid var(--card-color, var(--color-primary-vivid));
+        }
+        .card-input-reference.agua { --card-color: var(--color-info-vivid); }
+        .card-input-reference.energia { --card-color: var(--color-warning-vivid); }
+        .card-input-reference.transporte { --card-color: var(--color-secondary-vivid); }
+        .card-input-reference.alimentacion { --card-color: var(--color-success-vivid); }
+        .card-input-reference.residuos { --card-color: #8a2be2; /* Azul Violeta */ }
+        .card-input-reference.resultados { --card-color: var(--color-primary-vivid); } /* Color para el resultado */
+
+        /* Estilo para Resumen Final */
+        .resumen-card {
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+        .resumen-toneladas {
+            color: var(--color-primary-vivid);
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .resumen-compromiso-box {
+            background-color: #e6f7ff;
+            border-left: 5px solid var(--color-info-vivid);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div aria-hidden="true" aria-labelledby="welcomeModalLabel" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="welcomeModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content p-4 text-center">
+<h3 class="modal-title text-primary-vivid fw-bold mb-3" id="welcomeModalLabel">Hola! Sé tu guía.</h3>
+<p class="text-muted">Felicidades por querer saber cuál es tu impacto en el clima.</p>
+<div class="mb-4">
+<label class="form-label fw-bold" for="userName">Ingresa tu Nombre:</label>
+<input class="form-control" id="userName" placeholder="Ej: Carmen, Daniel, Raul" required="" type="text"/>
+</div>
+<div class="mb-4">
+<p class="form-label fw-bold">¿Cuán grande crees que es tu huella?</p>
+<div class="row row-cols-3 g-2">
+<div class="col"><input class="btn-check" id="level_bajo" name="initial_level" type="radio" value="bajo"/><label class="btn btn-outline-success w-100" for="level_bajo">Bajo</label></div>
+<div class="col"><input checked="" class="btn-check" id="level_intermedio" name="initial_level" type="radio" value="intermedio"/><label class="btn btn-outline-warning w-100" for="level_intermedio">Intermedio</label></div>
+<div class="col"><input class="btn-check" id="level_alto" name="initial_level" type="radio" value="alto"/><label class="btn btn-outline-danger w-100" for="level_alto">Alto</label></div>
+</div>
+</div>
+<button class="btn btn-primary-vivid btn-lg" id="startBtn" type="button">
+<i class="fas fa-play me-2"></i> Descubre tu huella
+                </button>
+</div>
+</div>
+</div>
+<div class="hidden" id="wrapper">
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
+<div class="container-fluid">
+<span class="navbar-text text-primary-vivid fw-bold">
+                    EcoCalc | Hola, <span id="navUserName">Invitado</span>
+</span>
+</div>
+</nav>
+<div class="content-container">
+<aside class="visual-sidebar" style="background-color: var(--color-light-bg);">
+<h6 class="text-primary-vivid fw-bold mb-3">Impacto Global</h6>
+<div class="visual-asset">
+<p class="text-muted small p-2"></p>
+
+<!-- Video MP4 automático, sin controles -->
+<video autoplay muted loop playsinline class="img-fluid rounded" style="width:100%; border-radius:10px; object-fit:cover;">
+  <source src="VIDEO 1.mp4" type="video/mp4">
+  Tu navegador no soporta la reproducción de video.
+</video>
+</div>
+<div class="visual-asset">
+  <p class="text-muted small p-2"></p>
+  <video autoplay muted loop playsinline class="img-fluid rounded" style="width:250px; height:150px; object-fit:cover;">
+    <source src="VIDEO 2.mp4" type="video/mp4">
+    Tu navegador no soporta la reproducción de video.
+  </video>
+</div>
+</aside>
+
+<div id="page-content-wrapper">
+<main class="main-content-centered">
+<section class="hidden" id="calculadora-section">
+<h1 class="mt-4 mb-4 text-primary-vivid fw-bold" id="calculadora-section-title">Tu Medición (Paso 1/6)</h1>
+<form id="calculadoraForm" onsubmit="event.preventDefault(); navigateStep(1);">
+<div id="apartados-form">
+<div class="tab-pane" data-step="1">
+<h3 class="mb-4"><i class="fas fa-user-circle me-2"></i> 1. Información Base</h3>
+<div class="card p-4 mb-4 card-input-reference">
+<label class="form-label fw-bold" for="personas">¿Cuántas personas viven en tu hogar?</label>
+<input class="form-control" id="personas" min="1" placeholder="Mínimo 1" required="" type="number" value="1"/>
+</div>
+<div class="d-flex justify-content-end">
+<button class="btn btn-category-vivid" onclick="navigateStep(1)" type="button">Siguiente Categoría <i class="fas fa-arrow-right ms-2"></i></button>
+</div>
+</div>
+<div class="tab-pane hidden" data-step="2">
+<h3 class="mb-4 text-info-vivid"><i class="fas fa-tint me-2"></i> 2. Agua</h3>
+<div class="card p-4 mb-4 card-input-reference agua">
+<label class="form-label fw-bold" for="veces_ducha_semana">¿Cuántas veces a la semana te duchas?</label>
+<input class="form-control" id="veces_ducha_semana" max="7" min="0" placeholder="Ej: 7" required="" type="number" value="7"/>
+<label class="form-label fw-bold mt-3" for="minutos_ducha">¿Cuántos minutos dura tu ducha en promedio?</label>
+<input class="form-control" id="minutos_ducha" min="0" placeholder="Ej: 10" required="" type="number" value="10"/>
+<label class="form-label fw-bold mt-3" for="veces_lava_ropa_semana">¿Cuántas veces a la semana lavan ropa en casa?</label>
+<input class="form-control" id="veces_lava_ropa_semana" min="0" placeholder="Ej: 3" required="" type="number" value="3"/>
+<label class="form-label fw-bold mt-3">¿Cuál tipo de lavadora usas?</label>
+<div class="row">
+<div class="col-md-3"><label class="card-select-lavadora"><input name="lavadora_kg" required="" type="radio" value="5kg"/> 5kg</label></div>
+<div class="col-md-3"><label class="card-select-lavadora active"><input checked="" name="lavadora_kg" required="" type="radio" value="7kg"/> 7kg</label></div>
+<div class="col-md-3"><label class="card-select-lavadora"><input name="lavadora_kg" required="" type="radio" value="12kg"/> 12kg o más</label></div>
+<div class="col-md-3"><label class="card-select-lavadora"><input name="lavadora_kg" required="" type="radio" value="no_uso"/> No uso lavadora</label></div>
+</div>
+<label class="form-label fw-bold mt-4" for="agua_soles">Pago mensual de Agua (Soles - S/.):</label>
+<input class="form-control" id="agua_soles" min="0" placeholder="Ej: 30.00" required="" type="number" value="0"/>
+<div class="form-text text-info-vivid" id="m3_agua_aproximado">Aproximado: 0.00 m³/mes</div>
+</div>
+<div class="d-flex justify-content-between">
+<button class="btn btn-secondary" onclick="navigateStep(-1)" type="button"><i class="fas fa-arrow-left me-2"></i> Volver</button>
+<button class="btn btn-category-vivid" onclick="navigateStep(1)" type="button">Siguiente Categoría <i class="fas fa-arrow-right ms-2"></i></button>
+</div>
+</div>
+<div class="tab-pane hidden" data-step="3">
+<h3 class="mb-4 text-warning-vivid"><i class="fas fa-bolt me-2"></i> 3. Energía</h3>
+<div class="card p-4 mb-4 card-input-reference energia">
+<label class="form-label fw-bold" for="electricidad_soles">Pago mensual de Electricidad (Soles - S/.):</label>
+<input class="form-control" id="electricidad_soles" min="0" placeholder="Ej: 50.00" required="" type="number" value="0"/>
+<div class="form-text text-warning-vivid" id="kwh_electricidad_aproximado">Aproximado: 0.00 kWh/mes</div>
+<label class="form-label fw-bold mt-3" for="horas_electrodomesticos_dia">Horas al día que usas electrodomésticos (TV, PC, etc.):</label>
+<input class="form-control" id="horas_electrodomesticos_dia" max="24" min="0" placeholder="Ej: 5" required="" type="number" value="5"/>
+<label class="form-label fw-bold mt-3">¿Tienes cuidado de apagar las luces y desconectar aparatos?</label>
+<div class="form-check form-check-inline">
+<input checked="" class="form-check-input" id="apaga_si" name="apaga_luces" required="" type="radio" value="si"/>
+<label class="form-check-label" for="apaga_si">Sí, soy cuidadoso</label>
+</div>
+<div class="form-check form-check-inline">
+<input class="form-check-input" id="apaga_no" name="apaga_luces" required="" type="radio" value="no"/>
+<label class="form-check-label" for="apaga_no">No mucho</label>
+</div>
+<label class="form-label fw-bold mt-3">Tipo de Gas utilizado:</label>
+<div class="row g-2">
+<div class="col-6">
+<button class="btn btn-outline-dark w-100 gas-type-select active" data-gas-type="glp" type="button">GLP (Balón/Garrafa)</button>
+</div>
+<div class="col-6">
+<button class="btn btn-outline-dark w-100 gas-type-select" data-gas-type="gnv" type="button">GNV (Gas Natural)</button>
+</div>
+</div>
+<div class="mt-3" id="glp-input">
+<label class="form-label fw-bold" for="gas_glp_soles">Pago mensual de GLP (S/.):</label>
+<input class="form-control" id="gas_glp_soles" min="0" placeholder="Ej: 45.00 (equivalente a 1 balón por mes)" required="" type="number" value="0"/>
+<div class="form-text text-warning-vivid" id="balones_glp_aproximado">Aproximado: 0.00 balón(es) 10kg/mes</div>
+</div>
+<div class="mt-3 hidden" id="gnv-input">
+<label class="form-label fw-bold" for="gas_gnv_soles">Pago mensual de GNV (S/.):</label>
+<input class="form-control" id="gas_gnv_soles" min="0" placeholder="Ej: 20.00" required="" type="number" value="0"/>
+<div class="form-text text-warning-vivid" id="m3_gnv_aproximado">Aproximado: 0.00 m³/mes</div>
+</div>
+</div>
+<div class="d-flex justify-content-between">
+<button class="btn btn-secondary" onclick="navigateStep(-1)" type="button"><i class="fas fa-arrow-left me-2"></i> Volver</button>
+<button class="btn btn-category-vivid" onclick="navigateStep(1)" type="button">Siguiente Categoría <i class="fas fa-arrow-right ms-2"></i></button>
+</div>
+</div>
+<div class="tab-pane hidden" data-step="4">
+<h3 class="mb-4 text-secondary-vivid"><i class="fas fa-car me-2"></i> 4. Transporte</h3>
+<div class="card p-4 mb-4 card-input-reference transporte">
+<label class="form-label fw-bold">¿Posees o usas un Auto o Camioneta personal?</label>
+<div class="row g-2">
+<div class="col-4">
+<button class="btn btn-outline-dark w-100 auto-type-select active" data-auto="no" type="button">No tengo/uso</button>
+</div>
+<div class="col-4">
+<button class="btn btn-outline-dark w-100 auto-type-select" data-auto="gasolina" type="button">Gasolina</button>
+</div>
+<div class="col-4">
+<button class="btn btn-outline-dark w-100 auto-type-select" data-auto="diesel" type="button">Diésel</button>
+</div>
+</div>
+<div class="mt-3 hidden" id="litros-input-group">
+<label class="form-label fw-bold" for="litros_mes">Litros de Combustible que usas al mes:</label>
+<input class="form-control" id="litros_mes" min="0" placeholder="Ej: 80" required="" type="number" value="0"/>
+<div class="form-text text-secondary-vivid">Considera solo tu parte de uso si lo compartes.</div>
+</div>
+<h5 class="mt-4 mb-3 fw-bold">Transporte Público/Alternativo (semanal)</h5>
+<label class="form-label fw-bold" for="bus_km_semana">Km en Bus / Combi / Micro por semana:</label>
+<input class="form-control" id="bus_km_semana" min="0" placeholder="Ej: 50" required="" type="number" value="0"/>
+<label class="form-label fw-bold mt-3" for="tren_km_semana">Km en Tren / Metro / Tranvía por semana:</label>
+<input class="form-control" id="tren_km_semana" min="0" placeholder="Ej: 0" required="" type="number" value="0"/>
+<label class="form-label fw-bold mt-3" for="ferry_km_semana">Km en Ferry / Barco por semana:</label>
+<input class="form-control" id="ferry_km_semana" min="0" placeholder="Ej: 0" required="" type="number" value="0"/>
+<label class="form-label fw-bold mt-3" for="moto_km_semana">Km en Moto lineal por semana:</label>
+<input class="form-control" id="moto_km_semana" min="0" placeholder="Ej: 0" required="" type="number" value="0"/>
+</div>
+<div class="d-flex justify-content-between">
+<button class="btn btn-secondary" onclick="navigateStep(-1)" type="button"><i class="fas fa-arrow-left me-2"></i> Volver</button>
+<button class="btn btn-category-vivid" onclick="navigateStep(1)" type="button">Siguiente Categoría <i class="fas fa-arrow-right ms-2"></i></button>
+</div>
+</div>
+<div class="tab-pane hidden" data-step="5">
+<h3 class="mb-4 text-success-vivid"><i class="fas fa-utensils me-2"></i> 5. Alimentación</h3>
+<div class="card p-4 mb-4 card-input-reference alimentacion">
+<h5 class="mb-3 fw-bold">Consumo Semanal de Alimentos (en días)</h5>
+<div class="row">
+<div class="col-md-6 mb-3">
+<label class="form-label fw-bold" for="carne_roja_dias">Días de Carne Roja (res, cordero):</label>
+<input class="form-control" id="carne_roja_dias" max="7" min="0" placeholder="Ej: 2" required="" type="number" value="2"/>
+</div>
+<div class="col-md-6 mb-3">
+<label class="form-label fw-bold" for="pollo_dias">Días de Pollo:</label>
+<input class="form-control" id="pollo_dias" max="7" min="0" placeholder="Ej: 4" required="" type="number" value="4"/>
+</div>
+<div class="col-md-6 mb-3">
+<label class="form-label fw-bold" for="cerdo_dias">Días de Cerdo:</label>
+<input class="form-control" id="cerdo_dias" max="7" min="0" placeholder="Ej: 1" required="" type="number" value="1"/>
+</div>
+<div class="col-md-6 mb-3">
+<label class="form-label fw-bold" for="pescado_dias">Días de Pescado:</label>
+<input class="form-control" id="pescado_dias" max="7" min="0" placeholder="Ej: 1" required="" type="number" value="1"/>
+</div>
+</div>
+<div class="alert alert-info mt-3">
+<i class="fas fa-info-circle me-2"></i> El consumo de lácteos y vegetales es considerado en la base.
+                                        </div>
+<h5 class="mt-4 mb-3 fw-bold">Tipo de Compra</h5>
+<p class="form-label fw-bold">¿Dónde sueles comprar la mayoría de tus alimentos?</p>
+<div class="form-check">
+<input checked="" class="form-check-input" id="compra_super" name="empaque_alimentos" required="" type="radio" value="super"/>
+<label class="form-check-label" for="compra_super">Supermercados (más empaques y transporte)</label>
+</div>
+<div class="form-check">
+<input class="form-check-input" id="compra_mercado" name="empaque_alimentos" required="" type="radio" value="mercado"/>
+<label class="form-check-label" for="compra_mercado">Mercados (intermedio)</label>
+</div>
+<div class="form-check">
+<input class="form-check-input" id="compra_local" name="empaque_alimentos" required="" type="radio" value="local"/>
+<label class="form-check-label" for="compra_local">Productores locales / Huertos (menos empaques, menos transporte)</label>
+</div>
+</div>
+<div class="d-flex justify-content-between">
+<button class="btn btn-secondary" onclick="navigateStep(-1)" type="button"><i class="fas fa-arrow-left me-2"></i> Volver</button>
+<button class="btn btn-category-vivid" onclick="navigateStep(1)" type="button">Siguiente Categoría <i class="fas fa-arrow-right ms-2"></i></button>
+</div>
+</div>
+<div class="tab-pane hidden" data-step="6">
+<h3 class="mb-4" style="color: #8a2be2;"><i class="fas fa-recycle me-2"></i> 6. Residuos y Reciclaje</h3>
+<div class="card p-4 mb-4 card-input-reference residuos">
+<p class="form-label fw-bold">¿Cuál es el nivel de reciclaje de tu hogar (papel, plástico, vidrio)?</p>
+<div class="row">
+<div class="col-md-4"><label class="card-select-reciclaje active"><input checked="" name="nivel_reciclaje" required="" type="radio" value="casi_no"/> Casi nunca o no reciclo</label></div>
+<div class="col-md-4"><label class="card-select-reciclaje"><input name="nivel_reciclaje" required="" type="radio" value="algo"/> Algo (Separo botellas/papel)</label></div>
+<div class="col-md-4"><label class="card-select-reciclaje"><input name="nivel_reciclaje" required="" type="radio" value="todo"/> Reciclo casi todo</label></div>
+</div>
+<p class="form-label fw-bold mt-4">¿Haces compostaje de tus residuos orgánicos?</p>
+<div class="form-check form-check-inline">
+<input class="form-check-input" id="compostaje_si" name="compostaje" required="" type="radio" value="si"/>
+<label class="form-check-label" for="compostaje_si">Sí</label>
+</div>
+<div class="form-check form-check-inline">
+<input checked="" class="form-check-input" id="compostaje_no" name="compostaje" required="" type="radio" value="no"/>
+<label class="form-check-label" for="compostaje_no">No</label>
+</div>
+</div>
+<div class="d-flex justify-content-between">
+<button class="btn btn-secondary" onclick="navigateStep(-1)" type="button"><i class="fas fa-arrow-left me-2"></i> Volver</button>
+<button class="btn btn-category-vivid" onclick="navigateStep(1)" type="button">Ver Resultados <i class="fas fa-chart-line ms-2"></i></button>
+</div>
+</div>
+</div> </form>
+<p class="mt-3 text-secondary" id="equivalenciaReduccion"></p>
+</section>
+<section class="hidden" id="resultados-section">
+<h1 class="mt-4 mb-4 text-primary-vivid fw-bold">¡Descubriste tu Huella, <span id="resultadoUserName">Invitado</span>!</h1>
+<div class="huella-bar-container">
+<h4 class="text-center fw-bold mb-3">Tu Huella Actual vs. Promedio Perú</h4>
+<div class="huella-bar">
+<div class="huella-value" id="huellaValue"></div>
+<div class="huella-arrow text-center" id="huellaArrow"></div>
+<div class="huella-promedio" id="huellaPromedio"></div>
+<div class="huella-promedio-text" id="huellaPromedioText"></div>
+</div>
+<div class="huella-compromiso-arrow text-center hidden" id="huellaCompromisoArrow"></div>
+</div>
+<div class="alert alert-light text-center" role="alert">
+<p class="mb-0 fw-bold" id="comparacionPromedio"></p>
+</div>
+<div class="row">
+<div class="col-lg-6 mb-4">
+<div class="card card-input-reference resultados h-100">
+<div class="card-body">
+<h5 class="card-title text-primary-vivid fw-bold">Emisiones Totales (t CO₂e/año)</h5>
+<p class="resumen-toneladas text-center"><span id="huellaTotalTon">0.000</span></p>
+<p class="card-text text-muted small text-center">Toneladas de dióxido de carbono equivalente que emites anualmente.</p>
+</div>
+</div>
+</div>
+<div class="col-lg-6 mb-4">
+<div class="card card-input-reference h-100">
+<div class="card-body">
+<h5 class="card-title fw-bold">Distribución por Categoría</h5>
+<canvas id="huellaPieChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+<h4 class="mt-4 text-primary-vivid fw-bold">Detalle por Categoría (t CO₂e/año)</h4>
+<ul class="list-group list-group-flush mb-4">
+<li class="list-group-item d-flex justify-content-between align-items-center">
+<span class="text-info-vivid"><i class="fas fa-tint me-2"></i> 2. Agua</span>
+<span class="badge bg-info text-dark" id="aguaTon">0.000</span>
+</li>
+<li class="list-group-item d-flex justify-content-between align-items-center">
+<span class="text-warning-vivid"><i class="fas fa-bolt me-2"></i> 3. Energía</span>
+<span class="badge bg-warning text-dark" id="energiaTon">0.000</span>
+</li>
+<li class="list-group-item d-flex justify-content-between align-items-center">
+<span class="text-secondary-vivid"><i class="fas fa-car me-2"></i> 4. Transporte</span>
+<span class="badge bg-secondary" id="transporteTon">0.000</span>
+</li>
+<li class="list-group-item d-flex justify-content-between align-items-center">
+<span class="text-success-vivid"><i class="fas fa-utensils me-2"></i> 5. Alimentación</span>
+<span class="badge bg-success" id="alimentacionTon">0.000</span>
+</li>
+<li class="list-group-item d-flex justify-content-between align-items-center">
+<span style="color: #8a2be2;"><i class="fas fa-recycle me-2"></i> 6. Residuos</span>
+<span class="badge bg-purple" id="residuosTon" style="background-color: #8a2be2;">0.000</span>
+</li>
+</ul>
+<div class="d-flex justify-content-center">
+<button class="btn btn-primary-vivid btn-lg" onclick="navigateStep(1)" type="button">
+<i class="fas fa-hands-helping me-2"></i> Mi Compromiso
+                            </button>
+</div>
+<p class="mt-3 text-secondary" id="equivalenciaReduccion"></p>
+</section>
+<section class="hidden" id="compromisos-section">
+<h1 class="mt-4 mb-4 text-primary-vivid fw-bold">Define tu Compromiso Verde</h1>
+<p class="lead text-muted mb-4">Selecciona las acciones que estás dispuesto(a) a tomar para reducir tu impacto. La barra de abajo se actualizará con tu **Huella Meta**.</p>
+<div class="huella-bar-container">
+<h4 class="text-center fw-bold mb-3">Tu Huella Actual <i class="fas fa-arrow-right mx-2"></i> Tu Huella Meta</h4>
+<div class="huella-bar">
+<div class="huella-value" id="huellaValueCompromiso"></div>
+<div class="huella-arrow text-center" id="huellaArrowCompromiso"></div>
+<div class="huella-promedio" id="huellaPromedioCompromiso"></div>
+<div class="huella-promedio-text" id="huellaPromedioTextCompromiso"></div>
+</div>
+<div class="huella-compromiso-arrow text-center" id="huellaCompromisoArrow"></div>
+</div>
+<div class="card p-4 mb-4 card-input-reference">
+<h5 class="text-info-vivid fw-bold"><i class="fas fa-tint me-2"></i> Agua</h5>
+<div class="form-check">
+<input class="form-check-input" id="compromiso_ducha_corta" type="checkbox"/>
+<label class="form-check-label" for="compromiso_ducha_corta">
+                                    Ducharme menos de 5 minutos al día.
+                                </label>
+</div>
+<div class="form-check">
+<input class="form-check-input" id="compromiso_reparar_fugas" type="checkbox"/>
+<label class="form-check-label" for="compromiso_reparar_fugas">
+                                    Reparar inmediatamente cualquier fuga de agua.
+                                </label>
+</div>
+<h5 class="text-warning-vivid fw-bold mt-4"><i class="fas fa-bolt me-2"></i> Energía</h5>
+<div class="form-check">
+<input class="form-check-input" id="compromiso_desconectar_aparatos" type="checkbox"/>
+<label class="form-check-label" for="compromiso_desconectar_aparatos">
+                                    Desconectar todos los aparatos electrónicos que no esté usando (evitar 'consumo fantasma').
+                                </label>
+</div>
+<h5 class="text-secondary-vivid fw-bold mt-4"><i class="fas fa-car me-2"></i> Transporte</h5>
+<div class="form-check">
+<input class="form-check-input" id="compromiso_usar_bicicleta" type="checkbox"/>
+<label class="form-check-label" for="compromiso_usar_bicicleta">
+                                    Usar bicicleta o caminar para trayectos menores a 2 km.
+                                </label>
+</div>
+<h5 class="text-success-vivid fw-bold mt-4"><i class="fas fa-utensils me-2"></i> Alimentación</h5>
+<label class="form-label fw-bold" for="reducir_carne_roja_dias">Reducir mi consumo de carne roja a: <span id="carne_compromiso_text">2 días/semana</span></label>
+<input class="form-range" id="reducir_carne_roja_dias" max="7" min="0" type="range" value="2"/>
+<h5 class="fw-bold mt-4" style="color: #8a2be2;"><i class="fas fa-recycle me-2"></i> Residuos</h5>
+<div class="form-check">
+<input class="form-check-input" id="compromiso_compostaje" type="checkbox"/>
+<label class="form-check-label" for="compromiso_compostaje">
+                                    Empezar a hacer compostaje de residuos orgánicos.
+                                </label>
+</div>
+</div>
+<div class="d-flex justify-content-between">
+<button class="btn btn-secondary" onclick="navigateStep(-1)" type="button"><i class="fas fa-arrow-left me-2"></i> Ver Resultados Base</button>
+<button class="btn btn-category-vivid" onclick="navigateStep(1)" type="button">
+<i class="fas fa-file-alt me-2"></i> Resumen Final
+                            </button>
+</div>
+<p class="mt-3 text-secondary" id="equivalenciaReduccion"></p>
+</section>
+<section class="hidden" id="resumen-section">
+<h1 class="mt-4 mb-4 text-primary-vivid fw-bold">¡Lo Lograste, <span id="resumenUserName">Invitado</span>!</h1>
+<p class="lead text-muted mb-4">Este es el resumen de tu huella actual y tu compromiso de reducción.</p>
+<div class="resumen-card p-4 p-md-5 text-center">
+<h4 class="text-primary-vivid fw-bold">Tu Huella de Carbono Meta (t CO₂e/año)</h4>
+<p class="resumen-toneladas"><span id="huellaFinalCompromiso">0.000</span></p>
+<p class="text-muted">Tu compromiso te permitirá evitar:</p>
+<div class="row g-3 justify-content-center">
+<div class="col-md-6">
+<div class="alert alert-success fw-bold">
+<i class="fas fa-leaf me-2"></i> <span id="resumenToneladas">0.000</span> t CO₂e
+                                    </div>
+</div>
+<div class="col-md-6">
+<div class="alert alert-success fw-bold">
+<i class="fas fa-percentage me-2"></i> <span id="resumenPorcentaje">0.00</span> % de reducción
+                                    </div>
+</div>
+</div>
+<div class="resumen-compromiso-box">
+<h5 class="fw-bold text-info-vivid">¿Qué significa esta reducción?</h5>
+<p class="mt-3 text-secondary" id="equivalenciaReduccion"></p>
+</div>
+
+<!-- 🔽 NUEVA COMPARATIVA DE IMPACTO (visible en el resumen final) -->
+<div id="comparativaImpacto" class="card p-3 mt-3 hidden" style="opacity:0; transition: opacity 0.8s ease;">
+  <h6 class="mb-3">Comparativa de Impacto</h6>
+  <div class="comparativa-box d-flex flex-wrap gap-3">
+    <div class="comparativa-item flex-fill">
+      💧 <span id="comparativa_agua_text">—</span>
+    </div>
+    <div class="comparativa-item flex-fill">
+      ⚡ <span id="comparativa_energia_text">—</span>
+    </div>
+    <div class="comparativa-item flex-fill">
+      🚗 <span id="comparativa_transporte_text">—</span>
+    </div>
+    <div class="comparativa-item flex-fill">
+      🌳 <span id="comparativa_arboles_text">—</span>
+    </div>
+  </div>
+</div>
+<div class="d-grid gap-2 d-md-block mt-4">
+<button class="btn btn-primary-vivid btn-lg" id="sumarContribucionBtn">
+<i class="fas fa-globe-americas me-2"></i> Sumar mi Contribución
+                                </button>
+<a class="btn btn-outline-secondary btn-lg" href="#" id="compartirRedesLink">
+<i class="fas fa-share-alt me-2"></i> Compartir
+                                </a>
+</div>
+</div>
+<p class="mt-5 text-muted">Si quieres reducir más tu huella, te presentamos otras opciones que puedes tomar y que ayudarán a mejorar tu resultado en la próxima medición.</p>
+<button class="btn btn-warning btn-lg mx-auto d-block" id="conocerMasOpcionesBtn">¡Quiero conocerlas!</button>
+<p class="mt-3 text-secondary" id="equivalenciaReduccion"></p>
+</section>
+</main>
+</div>
+<aside class="visual-sidebar" style="background-color: #e9ecef;">
+<h6 class="text-primary-vivid fw-bold mb-3">Cuidado Ambiental</h6>
+
+<div class="visual-asset">
+  <p class="text-muted small p-2"></p>
+  <video autoplay muted loop playsinline class="img-fluid rounded" style="width:250px; height:150px; object-fit:cover;">
+    <source src="VIDEO 3.mp4" type="video/mp4">
+    Tu navegador no soporta la reproducción de video.
+  </video>
+</div>
+
+<div class="visual-asset">
+  <p class="text-muted small p-2"></p>
+  <video autoplay muted loop playsinline class="img-fluid rounded" style="width:250px; height:150px; object-fit:cover;">
+    <source src="VIDEO 2.mp4" type="video/mp4">
+    Tu navegador no soporta la reproducción de video.
+  </video>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</body>
+</html>

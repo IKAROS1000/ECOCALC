@@ -1,0 +1,294 @@
+/* ======================================================================
+   PALETA DE COLORES VÍVIDA (Integrada de su versión)
+   ====================================================================== */
+:root {
+    /* Colores Libélula/Vívidos */
+    --color-primary-vivid: #008080; /* Teal/Verde Oscuro - Sidebar, Botones Primarios */
+    --color-secondary-vivid: #ff6347; /* Rojo/Naranja - Huella Actual, Advertencias */
+    --color-success-vivid: #3cb371; /* Verde Menta - Éxito, Consejos, Reducción */
+    --color-info-vivid: #4682b4; /* Azul Acero - Información, Huella Por Persona, Agua */
+    --color-warning-vivid: #ffd700; /* Dorado - Energía, Moderado */
+    --color-light-bg: #f4f6f9; /* Fondo principal de la página */
+    --color-dark-vivid: #333333; /* Texto oscuro */
+    --font-family: 'Poppins', sans-serif;
+}
+
+/* ======================================================================
+   ESTILOS GENERALES Y LAYOUT BASE (Diseño Centrado y Responsive)
+   ====================================================================== */
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-light-bg);
+    overflow-x: hidden;
+}
+.hidden { display: none !important; }
+
+/* Tipografía y Colores */
+.text-primary-vivid { color: var(--color-primary-vivid) !important; }
+.text-secondary-vivid { color: var(--color-secondary-vivid) !important; }
+.text-success-vivid { color: var(--color-success-vivid) !important; }
+.text-info-vivid { color: var(--color-info-vivid) !important; }
+.text-warning-vivid { color: var(--color-warning-vivid) !important; }
+
+/* LAYOUT RESPONSIVE (Centrado + Barras Visuales) */
+#wrapper {
+    display: flex;
+    flex-direction: column; /* Apilar en móviles */
+    min-height: 100vh;
+    background-color: var(--color-light-bg);
+}
+
+/* Contenedor de Contenido (Calculadora + Barras Laterales) */
+.content-container {
+    display: flex;
+    flex-direction: row; /* Por defecto, para escritorio */
+    width: 100%;
+    /* Altura ajustable, menos la navbar */
+    min-height: calc(100vh - 56px);
+}
+
+/* Contenido principal centrado */
+.main-content-centered {
+    width: 100%; /* Ocupa el 100% en móviles */
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 0; /* Sin bordes redondeados en móvil */
+}
+
+/* Columnas Laterales para Videos/Gifs - OCULTAS POR DEFECTO EN MÓVIL */
+.visual-sidebar {
+    display: none;
+}
+.visual-asset { 
+    margin-bottom: 20px; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    background-color: white; /* Asegurar fondo blanco para los assets */
+}
+.visual-asset img, .visual-asset video { width: 100%; height: auto; display: block; }
+
+/* MEDIA QUERY PARA ESCRITORIO (min-width: 1200px) */
+@media (min-width: 1200px) {
+    .visual-sidebar {
+        display: block; /* Mostrar las barras laterales en escritorios */
+        width: 250px;
+        max-width: 250px; 
+        padding: 20px;
+        background-color: #e9ecef;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+    }
+    #page-content-wrapper {
+         padding: 0; 
+         flex-grow: 1;
+         display: flex;
+         justify-content: center;
+         align-items: flex-start;
+    }
+    .content-container {
+        justify-content: space-between;
+        align-items: stretch;
+    }
+    .main-content-centered {
+        max-width: 800px; /* Ancho máximo para el contenido principal */
+        padding: 30px;
+        border-radius: 12px;
+    }
+}
+
+
+/* ======================================================================
+   ESTILOS DE BOTONES Y FORMULARIO
+   ====================================================================== */
+
+/* Botones Principales (Usa su variable de color) */
+.btn-primary-vivid { 
+    background-color: var(--color-primary-vivid); 
+    border-color: var(--color-primary-vivid); 
+    border-radius: 50px;
+    font-weight: 600;
+    color: white; /* Asegurar color blanco */
+}
+.btn-primary-vivid:hover { background-color: #004d4d; border-color: #004d4d; }
+
+/* Botón de Categoría (Para Siguiente/Ver Resultados) */
+.btn-category-vivid {
+    /* Usamos el color de éxito para diferenciar el flujo */
+    background-color: var(--color-success-vivid); 
+    border-color: var(--color-success-vivid);
+    color: white;
+    font-weight: bold;
+    border-radius: 50px;
+    padding: 10px 25px;
+    transition: all 0.3s;
+}
+.btn-category-vivid:hover {
+    background-color: #388E3C; /* Verde un poco más oscuro */
+    border-color: #388E3C;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* CORRECCIÓN DE ESTILO DE BOTONES DE SELECCIÓN (Lavadora y Reciclaje) */
+.card-select-lavadora, .card-select-reciclaje { 
+    border: 2px solid #ddd; /* Estado por defecto (no seleccionado) */
+    padding: 15px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    display: block; 
+    text-align: center; 
+    transition: all 0.2s; 
+    margin-bottom: 10px;
+}
+
+/* Estado ACTIVO/SELECCIONADO (USA SU COLOR DE ÉXITO) */
+.card-select-lavadora.active, .card-select-reciclaje.active { 
+    border-color: var(--color-success-vivid); 
+    background-color: #E8F5E9; /* Fondo muy claro */
+    box-shadow: 0 0 5px rgba(60, 179, 113, 0.5);
+}
+
+/* Estilo para marcar errores en el grupo de radio buttons (Validación) */
+.is-invalid-group {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+}
+
+.card-select-lavadora input, .card-select-reciclaje input { display: none; }
+
+
+/* RESPONSIVE PARA BOTONES DE ENCUESTA (MEJORA MÓVIL) */
+@media (max-width: 767px) {
+    /* Lavadora (De 4 a 2 columnas) */
+    .tab-pane[data-step="2"] .row > div.col-md-3 {
+        width: 50%; 
+    }
+    /* Reciclaje (De 3 a 2 columnas) */
+    .tab-pane[data-step="6"] .row > div.col-md-4 {
+        width: 50%; 
+    }
+}
+
+
+/* ======================================================================
+   ESTILOS DE BARRA DE RESULTADOS (Fusionados)
+   ====================================================================== */
+.huella-bar-container { 
+    position: relative; 
+    padding: 50px 0; 
+    max-width: 600px; 
+    margin: 0 auto; 
+    /* Estilos del card de su versión */
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.huella-bar { 
+    background-color: #ddd; 
+    height: 15px; /* Más ancho para visibilidad */
+    border-radius: 5px; 
+    position: relative; 
+}
+.huella-value { 
+    height: 100%; 
+    border-radius: 5px; 
+    background-color: var(--color-secondary-vivid); /* Huella Actual (Rojo/Naranja) */
+    transition: width 0.5s ease-in-out; 
+}
+
+/* Flechas y Promedio */
+.huella-arrow { 
+    position: absolute; 
+    top: -20px; 
+    font-size: 1.2rem; 
+    z-index: 10; 
+    color: var(--color-secondary-vivid); 
+}
+.huella-arrow .d-block { 
+    font-size: 0.7rem; 
+    white-space: nowrap; 
+    font-weight: bold;
+}
+.huella-compromiso-arrow { 
+    position: absolute; 
+    bottom: -20px; 
+    font-size: 1.2rem; 
+    z-index: 10; 
+    color: var(--color-success-vivid); 
+}
+.huella-compromiso-arrow .d-block { 
+    font-size: 0.7rem; 
+    white-space: nowrap; 
+    font-weight: bold;
+}
+.huella-promedio { 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    width: 4px; 
+    background-color: var(--color-info-vivid); 
+    margin-left: -2px; 
+    z-index: 5; 
+}
+.huella-promedio-text { 
+    position: absolute; 
+    bottom: -25px; 
+    font-size: 0.7rem; 
+    color: var(--color-info-vivid); 
+    white-space: nowrap; 
+    font-weight: bold; 
+}
+
+
+/* ======================================================================
+   OTROS ESTILOS (Mantenidos de su versión)
+   ====================================================================== */
+
+/* Estilos de Card de Input (Simulando el borde superior de la referencia) */
+.card-input-reference {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+    border: none;
+    border-top: 5px solid var(--card-color, var(--color-primary-vivid));
+}
+.card-input-reference.agua { --card-color: var(--color-info-vivid); }
+.card-input-reference.energia { --card-color: var(--color-warning-vivid); }
+.card-input-reference.transporte { --card-color: var(--color-secondary-vivid); }
+.card-input-reference.alimentacion { --card-color: var(--color-success-vivid); }
+.card-input-reference.residuos { --card-color: #8a2be2; /* Azul Violeta */ }
+
+/* Botones de Selección tipo Radio */
+.form-check-inline {
+    margin-right: 1.5rem !important;
+}
+.form-check-input:checked {
+    background-color: var(--color-primary-vivid);
+    border-color: var(--color-primary-vivid);
+}
+
+/* Estilo para Resumen Final */
+.resumen-card {
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+.resumen-toneladas {
+    color: var(--color-primary-vivid);
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+.resumen-compromiso-box {
+    background-color: #e6f7ff;
+    border-left: 5px solid var(--color-info-vivid);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
