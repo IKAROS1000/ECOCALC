@@ -1,4 +1,4 @@
-throw new Error("cerrado");
+//throw new Error("cerrado");
 
 // FACTORES Y CONSTANTES 
 const FACTORES = {
@@ -878,4 +878,5 @@ function calcularComparativas(huellaCalculada) {
     setTimeout(() => comparativaDiv.style.opacity = 1, 50);
   }
 }
+
 
