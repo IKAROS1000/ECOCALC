@@ -1,5 +1,4 @@
 //throw new Error("cerrado");
-
 // FACTORES Y CONSTANTES 
 const FACTORES = {
     ELECTRICIDAD_KWH: 0.200, // kg CO2e/kWh (Factor de emisión promedio Perú - 2023)
@@ -878,6 +877,7 @@ function calcularComparativas(huellaCalculada) {
     setTimeout(() => comparativaDiv.style.opacity = 1, 50);
   }
 }
+
 
 
 
